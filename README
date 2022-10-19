@@ -1,0 +1,57 @@
+Programul implementat realizeaza in C interactiunea cu un API cu tematica unei
+biblioteci. Pentru a dovedi autenticitatea unui utilizator am folosit cookies
+si token-uri JWT iar pentru parsarea si crearea de JSON am folosit bilioteca
+Parson, recomandata in cerinta temei pentru limbajul C.
+
+Motivul pentru care am ales limbajul C in loc de C++ a fost dorinta de a
+folosi laboratorul 10 ca punct de pornire, preluand din acesta fisierele
+buffer, helpers si requests. Fisierul helpers l-am modificat adaugand
+functile create_json_credentials, create_json_book_info, extract_jwt_token_response
+si construct_book_url iar fisierul requests l-am modificat adaugand suport pentru
+token-urile JWT si creand functia compute_delete_request.
+
+Pentru a interactiona cu string-urile in format JSON am folosit biblioteca
+Parson iar modalitatile de parsare si scriere JSON au fost preluate si adaptate
+din exemplele oferite in README-ul acesteia.
+
+Pentru comanda get_books am parcurs array-ul de la 0 pana la numarul returnat de
+json_array_get_count, am pus elementul de pe pozitia i intr-un obiect JSON
+si am extras ID-ul si titlu din acesta.
+Similar am facut si pentru comanda get_book, observand ca datele
+cartii sunt trimise de catre server sub forma unui array cu un singur element.
+
+Pentru a crea un JSON cu informatile necesare in cadrul comenzilor register,
+login si add_book am creat un JSON_Value si un JSON_Object conform exemplului
+din README-ul bibliotecii si am adaugat in acel obiect informatile date de utilizator
+folosind functile json_object_set_string si json_object_set_number, in functie
+de tipul de data adaugat.
+
+Toata implementarea a fost scrisa in cadrul fisierului client.c, mai putin
+cateva functii ajutatoare adaugate in fisierul helpers si functia
+compute_delete_request adaugata in requests. Programul ruleaza intr-o bulca infinita in
+care citeste comenzi si executa actiunile specifice lor pana la intalnirea
+comenzii exit, moment in care iese din bucla si executia programului se incheie.
+
+Pentru comenzile date am realizat validarea formatului informatilor date
+de catre utilizator iar daca sunt valide le-am trimis catre server,
+afisand apoi utilizatorului un mesaj care anunta executia cu succes a
+comenzii sau un mesaj de eroare, pe baza erorii primite de la server.
+
+Pentru a pastra cookie-ul si token-ul JWT am declarat doua siruri de caractere,
+cookie si JWT_token. In cazul in care utilizatorul nu este logat cookie va avea
+valoarea EMPTY (definita ca "") iar in cazul in care utilizatorul nu are acces
+la biblioteca JWT_token va avea deasemena valoarea EMPTY. Cand utilizatorul se
+logheaza se retine in cookie valoarea cookie transmisa de catre server
+iar cand utilizatorul ruleaza comanda enter_library se retine in JWT_token
+valoarea token-ului furinizat de catre server.
+Initial cookie si JWT_token vor avea valoarea EMPTY iar cand se ruleaza
+comanda logout se elibereaza memoria alocata pentru acestea.
+(daca nu sunt deja EMPTY) si se seteaza amandoua la EMPTY.  
+
+O problema pe care am intampinat-o in timpul realizarii temei a fost faptul
+ca conexiunea se inchidea la 5 secunde daca nu era introdusa nicio comanda noua.
+Dupa ce am facut debugging si am folosit forum-ul temei am rezolvat problema
+prin deschiderea unei conexiuni noi inainte de a trimite cererea catre server
+pentru fiecare comanda si inchiderea acesteia la sfarsitul fiecarei comenzi. 
+
+In Makefile am implementat regulile de build, run si clean.
